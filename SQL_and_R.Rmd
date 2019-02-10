@@ -1,0 +1,52 @@
+---
+title: "SQL_R"
+author: "Stephen Jones"
+date: "February 10, 2019"
+output:
+  html_document:
+    code_folding: hide
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Data on film ratings were collected and saved as films.csv (https://raw.githubusercontent.com/sigmasigmaiota/films/master/films.csv), then stored in a SQL database.
+The data were then loaded into an R dataframe via <strong>RMySQL, DBI</strong> and <strong>tibble</strong>.<br>
+Table was composed using <strong>kableExtra</strong>.
+
+```{r warning=FALSE, message=FALSE, include=FALSE}
+rm(list=ls())
+password_1<-'password_1'
+```
+
+```{r warning=FALSE, message=FALSE}
+library(RMySQL)
+library(DBI)
+library(tibble)
+
+films.data=dbConnect(MySQL(),
+  user='root',
+  password=password_1,
+  dbname='films',
+  host='localhost')
+knitr::opts_chunk$set(connection = "films.data")
+```
+
+```{r warning=FALSE, message=FALSE}
+ratings <- as_tibble(DBI::dbReadTable(films.data,"ratings"))
+
+ratings.mean<-as.data.frame(sapply(ratings[2:7],mean))
+colnames(ratings.mean)[1]<-"MeanScore"
+
+library(kableExtra)
+kable(ratings.mean,"html")%>%
+  kable_styling("striped",full_width = F)
+
+```
+In this sample, Black Panther was rated the highest.
+
+
+
+
